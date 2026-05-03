@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AR Trading Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#c9a84c;--gold2:#f0d080;--gold3:#ffeaa0;
+  --dark:#0f0900;--dark2:#1a1000;--dark3:#251800;
+  --green:#1a6b3a;--green2:#0d4523;--red:#8b1a1a;--red2:#5a0f0f;
+  --surface:#1e1400;--surface2:#261c00;--surface3:#2e2200;
+  --text:#f0d080;--text2:#c9a84c;--text3:#a08030;--textmuted:#7a6030;
+  --border:rgba(201,168,76,0.25);--border2:rgba(201,168,76,0.12);
+  --radius:10px;--radius2:16px;
+}
+html,body{height:100%;font-family:'Lato',sans-serif;background:var(--dark);color:var(--text);overflow-x:hidden}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--dark2)}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
+
+/* ─── LOGIN SCREEN ─── */
+#login-screen{
+  position:fixed;inset:0;z-index:1000;
+  background:radial-gradient(ellipse at center, #1e1000 0%, #0a0600 100%);
+  display:flex;align-items:center;justify-content:center;
+}
+#login-screen::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,168,76,0.02) 40px,rgba(201,168,76,0.02) 41px);
+}
+.login-box{
+  position:relative;z-index:1;width:360px;
+  border:1px solid var(--gold);border-radius:var(--radius2);
+  background:linear-gradient(160deg,#201500,#150e00);
+  padding:40px 36px;text-align:center;
+  box-shadow:0 0 60px rgba(201,168,76,0.15), inset 0 1px 0 rgba(201,168,76,0.2);
+}
+.login-logo{
+  width:80px;height:80px;border-radius:50%;border:2px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 16px;
+  background:var(--dark3);font-family:'Cinzel',serif;font-size:26px;
+  color:var(--gold);font-weight:700;letter-spacing:1px;
+  box-shadow:0 0 20px rgba(201,168,76,0.3);
+}
+.login-title{font-family:'Cinzel',serif;font-size:20px;color:var(--gold2);font-weight:700;margin-bottom:4px}
+.login-sub{font-size:11px;color:var(--textmuted);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
+.login-field{margin-bottom:14px;text-align:left}
+.login-field label{font-size:11px;color:var(--textmuted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px}
+.login-field input{
+  width:100%;padding:10px 14px;background:var(--dark2);
+  border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-size:14px;font-family:'Lato',sans-serif;outline:none;
+  transition:border-color .2s;
+}
+.login-field input:focus{border-color:var(--gold)}
+.login-btn{
+  width:100%;padding:12px;background:linear-gradient(135deg,#c9a84c,#a07830);
+  border:none;border-radius:8px;color:#0f0900;font-size:14px;font-weight:700;
+  font-family:'Lato',sans-serif;cursor:pointer;letter-spacing:1px;text-transform:uppercase;
+  margin-top:8px;transition:opacity .2s;
+}
+.login-btn:hover{opacity:0.85}
+.login-err{font-size:12px;color:#f08080;margin-top:10px;display:none}
+.login-hint{font-size:11px;color:var(--textmuted);margin-top:16px;line-height:1.6}
+.login-hint strong{color:var(--gold)}
+
+/* ─── MAIN APP ─── */
+#app{display:none;height:100vh;flex-direction:column}
+#app.visible{display:flex}
+
+/* ─── HEADER ─── */
+.hdr{
+  background:linear-gradient(90deg,#0f0900,#1e1200,#0f0900);
+  border-bottom:1px solid var(--gold);
+  padding:0 20px;flex-shrink:0;
+  display:flex;align-items:stretch;gap:0;
+}
+.hdr-brand{display:flex;align-items:center;gap:12px;padding:12px 20px 12px 0;border-right:1px solid var(--border);margin-right:8px}
+.hdr-logo{
+  width:44px;height:44px;border-radius:50%;border:1.5px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  background:var(--dark3);font-family:'Cinzel',serif;font-size:14px;
+  color:var(--gold);font-weight:700;flex-shrink:0;
+}
+.hdr-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold2);font-weight:700;line-height:1.2}
+.hdr-sub{font-size:10px;color:var(--textmuted);letter-spacing:1.5px;text-transform:uppercase}
+.nav{display:flex;gap:0;flex:1;overflow-x:auto}
+.nav::-webkit-scrollbar{height:0}
+.tab-btn{
+  padding:0 14px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  background:transparent;border:none;cursor:pointer;color:var(--textmuted);
+  border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;
+  font-family:'Lato',sans-serif;border-top:2px solid transparent;
+}
+.tab-btn.active{color:var(--gold2);border-bottom:2px solid var(--gold)}
+.tab-btn:hover:not(.active){color:var(--gold);background:rgba(201,168,76,0.05)}
+.hdr-right{display:flex;align-items:center;gap:10px;padding-left:12px;border-left:1px solid var(--border)}
+.user-badge{font-size:11px;color:var(--textmuted);letter-spacing:.5px}
+.logout-btn{
+  padding:6px 14px;border:1px solid var(--border);border-radius:6px;
+  background:transparent;color:var(--textmuted);font-size:11px;cursor:pointer;
+  font-family:'Lato',sans-serif;transition:all .2s;
+}
+.logout-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ─── BODY LAYOUT ─── */
+.body-wrap{display:flex;flex:1;overflow:hidden}
+.main-content{flex:1;overflow-y:auto;padding:24px}
+.ai-sidebar{
+  width:340px;flex-shrink:0;border-left:1px solid var(--border);
+  display:flex;flex-direction:column;background:var(--dark2);
+  transition:width .3s;
+}
+.ai-sidebar.collapsed{width:0;overflow:hidden}
+
+/* ─── PANELS ─── */
+.panel{display:none}.panel.active{display:block}
+.sec-title{font-family:'Cinzel',serif;font-size:20px;color:var(--gold);margin-bottom:4px}
+.sec-sub{font-size:13px;color:var(--textmuted);margin-bottom:20px;line-height:1.6}
+
+/* ─── CARDS ─── */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.card{
+  background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);
+  padding:16px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .15s;
+}
+.card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold)}
+.card.bull::before{background:var(--green)}
+.card.bear::before{background:var(--red)}
+.card-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--textmuted);margin-bottom:6px}
+.card-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
+.card-desc{font-size:12px;color:var(--textmuted);line-height:1.6}
+
+/* ─── TERM LIST ─── */
+.term-list{display:flex;flex-direction:column;gap:1px}
+.term{display:grid;grid-template-columns:160px 1fr;gap:12px;padding:10px 14px;background:var(--surface);border-radius:8px;border:0.5px solid var(--border2);margin-bottom:1px}
+.term-key{font-size:12px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.5px}
+.term-val{font-size:13px;color:var(--text2);line-height:1.5}
+
+/* ─── TABLES ─── */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--textmuted);padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);background:rgba(201,168,76,0.05)}
+.data-table td{font-size:12px;padding:10px 12px;border-bottom:0.5px solid var(--border2);vertical-align:top;line-height:1.6;color:var(--text2)}
+.data-table tr:hover td{background:var(--surface2)}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.badge-bull{background:#1a6b3a22;color:#4db87a;border:0.5px solid #1a6b3a55}
+.badge-bear{background:#8b1a1a22;color:#e07070;border:0.5px solid #8b1a1a55}
+.badge-cont{background:#7a603022;color:#c9a84c;border:0.5px solid #7a603055}
+
+/* ─── INDICATORS ─── */
+.ind-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:20px}
+.ind-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.ind-name{font-size:14px;font-weight:700;color:var(--gold);margin-bottom:2px}
+.ind-type{font-size:10px;color:var(--textmuted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.ind-use{font-size:11px;color:var(--textmuted);margin-bottom:8px;font-style:italic;border-bottom:0.5px solid var(--border2);padding-bottom:6px}
+.ind-bull{font-size:12px;color:#4db87a;padding:4px 0;line-height:1.5}
+.ind-bear{font-size:12px;color:#e07070;padding:4px 0;line-height:1.5;margin-top:4px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.bull-dot{background:#4db87a}.bear-dot{background:#e07070}
+
+/* ─── STRATEGY ─── */
+.strat-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.strat-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.strat-badge{padding:3px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.bull-badge{background:#1a6b3a33;color:#4db87a;border:0.5px solid #4db87a44}
+.bear-badge{background:#8b1a1a33;color:#e07070;border:0.5px solid #e0707044}
+.side-badge{background:#7a603033;color:var(--gold);border:0.5px solid var(--gold)44}
+.strat-signals{font-size:11px;color:var(--textmuted);margin-bottom:10px;line-height:1.6;padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid var(--gold)}
+.strat-item{font-size:12px;color:var(--text2);padding:6px 0;border-bottom:0.5px solid var(--border2);line-height:1.5}
+.strat-item:last-child{border:none}
+.strat-item strong{color:var(--text);font-weight:700}
+
+/* ─── SEARCH ─── */
+.search-wrap{position:relative;margin-bottom:16px}
+.search-wrap input{
+  width:100%;padding:10px 14px 10px 36px;background:var(--surface);
+  border:0.5px solid var(--border);border-radius:8px;color:var(--text);
+  font-size:14px;outline:none;font-family:'Lato',sans-serif;transition:border-color .2s;
+}
+.search-wrap input:focus{border-color:var(--gold)}
+.search-wrap::before{content:'⌕';position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--textmuted);font-size:18px}
+
+/* ─── QUIZ ─── */
+.quiz-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius2);padding:24px;max-width:700px}
+.quiz-progress{display:flex;gap:4px;margin-bottom:20px}
+.quiz-dot{height:4px;flex:1;background:var(--border2);border-radius:2px;transition:background .3s}
+.quiz-dot.done{background:var(--gold)}
+.quiz-dot.current{background:var(--gold2)}
+.quiz-q{font-size:16px;font-weight:700;color:var(--text);margin-bottom:18px;line-height:1.6}
+.quiz-opts{display:flex;flex-direction:column;gap:8px}
+.quiz-opt{
+  padding:12px 16px;border-radius:8px;border:0.5px solid var(--border);
+  background:var(--surface2);color:var(--text2);font-size:13px;cursor:pointer;
+  text-align:left;transition:all .15s;font-family:'Lato',sans-serif;line-height:1.5;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--gold);background:rgba(201,168,76,0.08);color:var(--text)}
+.quiz-opt.correct{border-color:#4db87a;background:#1a6b3a22;color:#4db87a}
+.quiz-opt.wrong{border-color:#e07070;background:#8b1a1a22;color:#e07070}
+.quiz-opt:disabled{cursor:default}
+.quiz-feedback{margin-top:14px;padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;display:none}
+.quiz-feedback.show{display:block}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:16px}
+.quiz-score-bar{font-size:12px;color:var(--textmuted)}
+.btn{
+  padding:9px 20px;border-radius:8px;border:1px solid var(--gold);
+  background:transparent;color:var(--gold);font-size:12px;font-weight:700;
+  cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-family:'Lato',sans-serif;
+  transition:all .2s;
+}
+.btn:hover{background:rgba(201,168,76,0.12)}
+.btn-filter{border-color:var(--border);color:var(--textmuted);margin-right:6px;margin-bottom:6px}
+.btn-filter.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.1)}
+
+/* ─── AI SIDEBAR ─── */
+.ai-header{
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+  background:var(--dark3);
+}
+.ai-dot{width:8px;height:8px;border-radius:50%;background:#4db87a;box-shadow:0 0 6px #4db87a;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.ai-title{font-size:13px;font-weight:700;color:var(--gold);flex:1}
+.ai-toggle{background:transparent;border:none;color:var(--textmuted);cursor:pointer;font-size:18px;padding:0 4px}
+.ai-toggle:hover{color:var(--gold)}
+.ai-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ai-msg{padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.6;max-width:100%}
+.ai-msg.user{background:rgba(201,168,76,0.12);border:0.5px solid rgba(201,168,76,0.25);color:var(--text2);border-bottom-right-radius:3px;align-self:flex-end}
+.ai-msg.assistant{background:var(--surface2);border:0.5px solid var(--border2);color:var(--text2);border-bottom-left-radius:3px}
+.ai-msg.thinking{color:var(--textmuted);font-style:italic;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.ai-input-wrap{padding:12px;border-top:1px solid var(--border);flex-shrink:0;background:var(--dark3)}
+.ai-input-row{display:flex;gap:8px}
+.ai-input{
+  flex:1;padding:9px 12px;background:var(--surface);border:0.5px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:13px;font-family:'Lato',sans-serif;
+  outline:none;resize:none;transition:border-color .2s;
+}
+.ai-input:focus{border-color:var(--gold)}
+.ai-send{
+  padding:9px 14px;background:linear-gradient(135deg,#c9a84c,#a07830);
+  border:none;border-radius:8px;color:#0f0900;font-weight:700;
+  cursor:pointer;font-size:14px;flex-shrink:0;transition:opacity .2s;
+}
+.ai-send:hover{opacity:0.85}
+.ai-key-wrap{margin-bottom:10px}
+.ai-key-label{font-size:10px;color:var(--textmuted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.ai-key-input{
+  width:100%;padding:7px 10px;background:var(--surface);border:0.5px solid var(--border);
+  border-radius:6px;color:var(--text);font-size:12px;font-family:monospace;outline:none;
+}
+.ai-key-input:focus{border-color:var(--gold)}
+.ai-quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.ai-chip{
+  padding:4px 10px;border-radius:12px;font-size:11px;cursor:pointer;
+  background:var(--surface2);border:0.5px solid var(--border);color:var(--textmuted);
+  transition:all .15s;
+}
+.ai-chip:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ─── SIDEBAR TOGGLE BTN (floating) ─── */
+.ai-float-btn{
+  position:fixed;bottom:24px;right:24px;z-index:500;
+  width:48px;height:48px;border-radius:50%;
+  background:linear-gradient(135deg,#c9a84c,#a07830);
+  border:none;color:#0f0900;font-size:22px;cursor:pointer;
+  box-shadow:0 4px 20px rgba(201,168,76,0.4);display:none;
+  align-items:center;justify-content:center;transition:transform .2s;
+}
+.ai-float-btn:hover{transform:scale(1.1)}
+.ai-sidebar.collapsed~.ai-float-btn{display:flex}
+
+/* ─── HOME STATS ─── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
+.stat-num{font-size:28px;font-weight:700;color:var(--gold2);font-family:'Cinzel',serif;line-height:1}
+.stat-lbl{font-size:11px;color:var(--textmuted);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+
+/* ─── SMM PILLS ─── */
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pill{padding:5px 14px;border-radius:16px;font-size:12px;font-weight:700;background:rgba(201,168,76,0.1);color:var(--gold);border:0.5px solid rgba(201,168,76,0.3)}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:768px){
+  .ai-sidebar{width:100%;height:300px;border-left:none;border-top:1px solid var(--border)}
+  .body-wrap{flex-direction:column}
+  .ai-sidebar.collapsed{height:0;width:100%}
+  .term{grid-template-columns:1fr;gap:4px}
+  .hdr{flex-wrap:wrap;padding:10px}
+  .hdr-brand{padding:8px 12px 8px 0}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">AR</div>
+    <div class="login-title">AR Trading Academy</div>
+    <div class="login-sub">Secret of Market Millionaires</div>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="Enter username" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Enter Academy</button>
+    <div class="login-err" id="login-err">Incorrect credentials. Please try again.</div>
+    <div class="login-hint">
+      <strong>Student:</strong> user / student123<br>
+      <strong>Admin:</strong> admin / artrading2025
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN APP
+═══════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-brand">
+      <div class="hdr-logo">AR</div>
+      <div>
+        <div class="hdr-title">AR Trading Academy</div>
+        <div class="hdr-sub">SMM Learning Module</div>
+      </div>
+    </div>
+    <div class="nav" id="nav">
+      <button class="tab-btn active" onclick="show('home',this)">Home</button>
+      <button class="tab-btn" onclick="show('candles',this)">Candlesticks</button>
+      <button class="tab-btn" onclick="show('charts',this)">Chart Patterns</button>
+      <button class="tab-btn" onclick="show('indicators',this)">Indicators</button>
+      <button class="tab-btn" onclick="show('derivatives',this)">Derivatives</button>
+      <button class="tab-btn" onclick="show('strategy',this)">Strategy</button>
+      <button class="tab-btn" onclick="show('glossary',this)">Glossary</button>
+      <button class="tab-btn" onclick="show('quiz',this)">Quiz</button>
+    </div>
+    <div class="hdr-right">
+      <span class="user-badge" id="user-label">Welcome</span>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body-wrap">
+    <div class="main-content" id="main-content">
+
+      <!-- HOME -->
+      <div class="panel active" id="panel-home">
+        <div class="sec-title">Welcome to AR Trading Academy</div>
+        <div class="sec-sub">Your complete guide to trading mastery — from candlestick basics to advanced options strategy. Powered by AI for instant answers.</div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-num">18</div><div class="stat-lbl">Candle Patterns</div></div>
+          <div class="stat-card"><div class="stat-num">7</div><div class="stat-lbl">Chart Patterns</div></div>
+          <div class="stat-card"><div class="stat-num">6</div><div class="stat-lbl">Indicators</div></div>
+          <div class="stat-card"><div class="stat-num">10</div><div class="stat-lbl">Quiz Questions</div></div>
+          <div class="stat-card"><div class="stat-num">30+</div><div class="stat-lbl">Glossary Terms</div></div>
+        </div>
+        <div class="cards">
+          <div class="card bull" onclick="show('candles',document.querySelectorAll('.tab-btn')[1])">
+            <div class="card-label">Module 1</div>
+            <div class="card-name">Candlestick Patterns</div>
+            <div class="card-desc">Bullish, bearish &amp; neutral formations. Learn to read price action like a professional.</div>
+          </div>
+          <div class="card bear" onclick="show('charts',document.querySelectorAll('.tab-btn')[2])">
+            <div class="card-label">Module 2</div>
+            <div class="card-name">Chart Patterns</div>
+            <div class="card-desc">Head &amp; Shoulders, Double Tops/Bottoms, Flags, Cups — and how to trade them.</div>
+          </div>
+          <div class="card" onclick="show('indicators',document.querySelectorAll('.tab-btn')[3])">
+            <div class="card-label">Module 3</div>
+            <div class="card-name">Indicators</div>
+            <div class="card-desc">MACD, RSI, EMA, Bollinger Bands, Volume — when and how to use each tool.</div>
+          </div>
+          <div class="card bull" onclick="show('derivatives',document.querySelectorAll('.tab-btn')[4])">
+            <div class="card-label">Module 4</div>
+            <div class="card-name">Derivatives (F&amp;O)</div>
+            <div class="card-desc">Futures vs options, lot sizes, margin, OI, Greeks and expiry mechanics.</div>
+          </div>
+          <div class="card bear" onclick="show('strategy',document.querySelectorAll('.tab-btn')[5])">
+            <div class="card-label">Module 5</div>
+            <div class="card-name">Trading Strategy</div>
+            <div class="card-desc">Bullish, bearish, and sideways strategies with entry/exit rules and delta.</div>
+          </div>
+          <div class="card" onclick="show('quiz',document.querySelectorAll('.tab-btn')[7])">
+            <div class="card-label">Test Yourself</div>
+            <div class="card-name">Knowledge Quiz</div>
+            <div class="card-desc">Test your understanding of all modules with AI-powered interactive questions.</div>
+          </div>
+        </div>
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:18px 20px">
+          <div style="font-size:11px;color:var(--textmuted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">SMM Framework — Secret of Market Millionaires</div>
+          <div class="pill-row">
+            <span class="pill">Candle Stick</span><span class="pill">Trend Line</span><span class="pill">Chart Pattern</span>
+            <span class="pill">Indicators</span><span class="pill">Double Screen</span><span class="pill">Stop Loss</span>
+            <span class="pill">Entry &amp; Exit</span><span class="pill">Decision Sheet</span><span class="pill">Trade Checking</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CANDLESTICKS -->
+      <div class="panel" id="panel-candles">
+        <div class="sec-title">Candlestick Patterns</div>
+        <div class="sec-sub">Price action patterns — the language of the market</div>
+        <div style="margin-bottom:16px;display:flex;flex-wrap:wrap;gap:0">
+          <button class="btn btn-filter active" id="cf-all" onclick="filterCandles('all',this)">All (18)</button>
+          <button class="btn btn-filter" id="cf-bull" onclick="filterCandles('bull',this)">Bullish (6)</button>
+          <button class="btn btn-filter" id="cf-bear" onclick="filterCandles('bear',this)">Bearish (8)</button>
+          <button class="btn btn-filter" id="cf-neutral" onclick="filterCandles('neutral',this)">Neutral (4)</button>
+        </div>
+        <div class="cards" id="candle-grid"></div>
+      </div>
+
+      <!-- CHART PATTERNS -->
+      <div class="panel" id="panel-charts">
+        <div class="sec-title">Chart Patterns</div>
+        <div class="sec-sub">Major reversal and continuation patterns with price targets</div>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead><tr><th>Pattern</th><th>Type</th><th>Scenario</th><th>Target 1</th><th>Target 2</th><th>Target 3</th></tr></thead>
+            <tbody id="cp-body"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:20px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 20px">
+          <div style="font-size:11px;color:var(--textmuted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">Trendline Types</div>
+          <div class="pill-row">
+            <span class="pill">Support Line</span><span class="pill">Resistance Line</span>
+            <span class="pill">Horizontal Line</span><span class="pill">Angular / Diagonal Line</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- INDICATORS -->
+      <div class="panel" id="panel-indicators">
+        <div class="sec-title">Technical Indicators</div>
+        <div class="sec-sub">Double-screen system: always confirm on higher timeframe before entering</div>
+        <div class="ind-grid" id="ind-grid"></div>
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px">
+          <div style="font-size:12px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">EMA Alignment Rules</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div style="font-size:13px;color:#4db87a;padding:10px;background:#1a6b3a15;border-radius:8px;border:0.5px solid #4db87a33">
+              <strong style="display:block;margin-bottom:4px">PCO — Perfect Crossover (Bullish)</strong>
+              EMA 5 &gt; 13 &gt; 26 &gt; 50 — All short-term above long-term
+            </div>
+            <div style="font-size:13px;color:#e07070;padding:10px;background:#8b1a1a15;border-radius:8px;border:0.5px solid #e0707033">
+              <strong style="display:block;margin-bottom:4px">NCO — Negative Crossover (Bearish)</strong>
+              EMA 5 &lt; 13 &lt; 26 &lt; 50 — All short-term below long-term
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 20px">
+          <div style="font-size:12px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Bollinger Bands Detail</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px">
+            <div style="font-size:12px;color:var(--text2);padding:8px;background:var(--surface2);border-radius:6px"><strong style="color:var(--gold);display:block">Upper BB</strong>Resistance zone in normal markets</div>
+            <div style="font-size:12px;color:var(--text2);padding:8px;background:var(--surface2);border-radius:6px"><strong style="color:var(--gold);display:block">Lower BB</strong>Support zone in normal markets</div>
+            <div style="font-size:12px;color:var(--text2);padding:8px;background:var(--surface2);border-radius:6px"><strong style="color:var(--gold);display:block">BB Squeeze</strong>Bands contract = low volatility = breakout coming</div>
+            <div style="font-size:12px;color:var(--text2);padding:8px;background:var(--surface2);border-radius:6px"><strong style="color:var(--gold);display:block">BB Challenged</strong>Price pushes on a band after breakout — expansion signal</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DERIVATIVES -->
+      <div class="panel" id="panel-derivatives">
+        <div class="sec-title">Derivatives — Futures &amp; Options</div>
+        <div class="sec-sub">F&amp;O market mechanics, margin, OI and options terminology</div>
+        <div style="font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.5px;margin-bottom:10px;text-transform:uppercase;font-size:11px">Equity vs Derivatives</div>
+        <div style="overflow-x:auto;margin-bottom:20px">
+          <table class="data-table">
+            <thead><tr><th>Parameter</th><th>Equity Market</th><th>Derivatives Market</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Ownership</strong></td><td>You own the shares</td><td>Contracts on underlying — no ownership</td></tr>
+              <tr><td><strong>Investment</strong></td><td>Full cost of shares</td><td>15-20% margin (Futures) / Premium only (Options)</td></tr>
+              <tr><td><strong>Lot Size</strong></td><td>Even 1 share</td><td>Fixed lot size (e.g. Reliance = 500 shares/lot)</td></tr>
+              <tr><td><strong>Duration</strong></td><td>No limit</td><td>Monthly expiry — last Thursday of month</td></tr>
+              <tr><td><strong>Short Selling</strong></td><td>Intra-day only</td><td>Intra-day &amp; positional</td></tr>
+              <tr><td><strong>ROI (10% move)</strong></td><td>10%</td><td>Futures: 50-60% | Options: 100-500%</td></tr>
+              <tr><td><strong>Price</strong></td><td>Spot price</td><td>Futures price (premium or discount to spot)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase">Options Quick Reference</div>
+        <div style="overflow-x:auto;margin-bottom:20px">
+          <table class="data-table">
+            <thead><tr><th></th><th>Call Buy</th><th>Call Sell</th><th>Put Buy</th><th>Put Sell</th></tr></thead>
+            <tbody>
+              <tr><td><strong>View</strong></td><td style="color:#4db87a">Bullish</td><td style="color:#e07070">Bearish</td><td style="color:#e07070">Bearish</td><td style="color:#4db87a">Bullish</td></tr>
+              <tr><td><strong>Profit</strong></td><td>Unlimited</td><td>Limited (premium)</td><td>Unlimited</td><td>Limited (premium)</td></tr>
+              <tr><td><strong>Loss</strong></td><td>Limited (premium)</td><td>Unlimited</td><td>Limited (premium)</td><td>Unlimited</td></tr>
+              <tr><td><strong>BEP</strong></td><td>Strike + Premium</td><td>Strike + Premium</td><td>Strike – Premium</td><td>Strike – Premium</td></tr>
+              <tr><td><strong>Investment</strong></td><td>Premium only</td><td>20-30% Margin</td><td>Premium only</td><td>20-30% Margin</td></tr>
+              <tr><td><strong>Credit/Debit</strong></td><td>Debit</td><td>Credit</td><td>Credit</td><td>Debit</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase">Key F&amp;O Terms</div>
+        <div class="term-list" id="deriv-terms"></div>
+      </div>
+
+      <!-- STRATEGY -->
+      <div class="panel" id="panel-strategy">
+        <div class="sec-title">Trading Strategies</div>
+        <div class="sec-sub">Strategy selection based on market view and momentum confirmation</div>
+        <div style="margin-bottom:16px;display:flex;flex-wrap:wrap;gap:0">
+          <button class="btn btn-filter active" onclick="filterStrat('all',this)">All Views</button>
+          <button class="btn btn-filter" onclick="filterStrat('bull',this)">Strong Bullish</button>
+          <button class="btn btn-filter" onclick="filterStrat('mbull',this)">Moderate Bullish</button>
+          <button class="btn btn-filter" onclick="filterStrat('bear',this)">Strong Bearish</button>
+          <button class="btn btn-filter" onclick="filterStrat('mbear',this)">Moderate Bearish</button>
+          <button class="btn btn-filter" onclick="filterStrat('side',this)">Sideways</button>
+        </div>
+        <div id="strat-container"></div>
+      </div>
+
+      <!-- GLOSSARY -->
+      <div class="panel" id="panel-glossary">
+        <div class="sec-title">Glossary of Terms</div>
+        <div class="sec-sub">All key trading terms from the SMM framework</div>
+        <div class="search-wrap">
+          <input type="text" id="gloss-search" placeholder="Search terms..." oninput="filterGlossary()">
+        </div>
+        <div class="term-list" id="glossary-list"></div>
+      </div>
+
+      <!-- QUIZ -->
+      <div class="panel" id="panel-quiz">
+        <div class="sec-title">Knowledge Quiz</div>
+        <div class="sec-sub">Test your understanding across all modules</div>
+        <div class="quiz-card">
+          <div class="quiz-progress" id="quiz-progress"></div>
+          <div class="quiz-score-bar" id="quiz-score"></div>
+          <div style="height:12px"></div>
+          <div class="quiz-q" id="quiz-q"></div>
+          <div class="quiz-opts" id="quiz-opts"></div>
+          <div class="quiz-feedback" id="quiz-fb"></div>
+          <div class="quiz-nav">
+            <div id="quiz-result-msg" style="font-size:13px;color:var(--textmuted)"></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn" id="quiz-next" onclick="nextQ()" style="display:none">Next →</button>
+              <button class="btn" id="quiz-restart" onclick="startQuiz()" style="display:none">Restart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+
+    <!-- AI SIDEBAR -->
+    <div class="ai-sidebar" id="ai-sidebar">
+      <div class="ai-header">
+        <div class="ai-dot"></div>
+        <div class="ai-title">AI Trading Tutor</div>
+        <button class="ai-toggle" onclick="toggleSidebar()" title="Collapse">✕</button>
+      </div>
+      <div class="ai-msgs" id="ai-msgs">
+        <div class="ai-msg assistant">
+          Hello! I'm your AI Trading Tutor powered by Claude. Ask me anything about candlesticks, chart patterns, indicators, F&O, or strategy. I'm here to help you master the SMM framework!
+        </div>
+      </div>
+      <div style="padding:12px 12px 0;flex-shrink:0;border-top:1px solid var(--border2)">
+        <div class="ai-key-label">Your Anthropic API Key</div>
+        <input class="ai-key-input" type="password" id="api-key" placeholder="sk-ant-api03-..." oninput="saveKey()">
+        <div style="font-size:10px;color:var(--textmuted);margin-top:4px;margin-bottom:10px">Get your key at <strong style="color:var(--gold)">console.anthropic.com</strong> — stored locally only</div>
+      </div>
+      <div style="padding:0 12px 8px;flex-shrink:0">
+        <div class="ai-key-label" style="margin-bottom:6px">Quick Questions</div>
+        <div class="ai-quick">
+          <span class="ai-chip" onclick="askQuick('What is a Doji candle?')">Doji candle?</span>
+          <span class="ai-chip" onclick="askQuick('Explain OI and what it tells us')">OI explained</span>
+          <span class="ai-chip" onclick="askQuick('What is PCO in EMA?')">PCO / NCO?</span>
+          <span class="ai-chip" onclick="askQuick('When to use Bull Call Spread?')">Bull Call Spread</span>
+          <span class="ai-chip" onclick="askQuick('How to identify a Double Bottom?')">Double Bottom</span>
+          <span class="ai-chip" onclick="askQuick('What is BB Squeeze?')">BB Squeeze</span>
+        </div>
+      </div>
+      <div class="ai-input-wrap">
+        <div class="ai-input-row">
+          <textarea class="ai-input" id="ai-input" rows="2" placeholder="Ask about trading..." onkeydown="aiKeydown(event)"></textarea>
+          <button class="ai-send" onclick="sendAI()">&#9658;</button>
+        </div>
+        <div style="font-size:10px;color:var(--textmuted);margin-top:6px">Enter to send · Shift+Enter for new line</div>
+      </div>
+    </div>
+  </div><!-- /body-wrap -->
+</div><!-- /app -->
+
+<button class="ai-float-btn" id="ai-float-btn" onclick="toggleSidebar()" title="Open AI Tutor">&#129302;</button>
+
+<script>
+/* ─── CREDENTIALS ─── */
+const USERS = {
+  'admin': { pass: 'artrading2025', role: 'Admin' },
+  'user':  { pass: 'student123',   role: 'Student' },
+};
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim().toLowerCase();
+  const p = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-err');
+  if (USERS[u] && USERS[u].pass === p) {
+    err.style.display = 'none';
+    document.getElementById('login-screen').style.display = 'none';
+    const app = document.getElementById('app');
+    app.classList.add('visible');
+    document.getElementById('user-label').textContent = USERS[u].role + ': ' + u;
+    const saved = localStorage.getItem('ar_apikey');
+    if (saved) document.getElementById('api-key').value = saved;
+  } else {
+    err.style.display = 'block';
+  }
+}
+
+function doLogout() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+/* ─── NAVIGATION ─── */
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+/* ─── DATA ─── */
+const candleData = [
+  {type:'bull',name:'Plain Green Candle',desc:'Close > Open. Buyers were in control during the session. Basic bullish signal.'},
+  {type:'bull',name:'Hammer',desc:'Small body at top, long lower shadow ≥2× body. Bullish reversal at bottom of downtrend.'},
+  {type:'bull',name:'Bullish Piercing',desc:'Two candles: red then green. Green closes above 50% of red body. Reversal signal.'},
+  {type:'bull',name:'Bullish Engulfing',desc:'Green candle\'s body completely engulfs previous red body. Decisive buyer takeover.'},
+  {type:'bull',name:'Three White Soldiers',desc:'Three consecutive long green candles, each closing progressively higher. Strong reversal.'},
+  {type:'bull',name:'Morning Star',desc:'Three candles: long red → small star (gap down) → long green. Bottom reversal.'},
+  {type:'bear',name:'Plain Red Candle',desc:'Close < Open. Sellers were in control during the session. Basic bearish signal.'},
+  {type:'bear',name:'Inverted Hammer',desc:'Small body at bottom, long upper shadow. Appears at downtrend bottom — possible reversal.'},
+  {type:'bear',name:'Dark Cloud Cover',desc:'Green candle then red candle opening above high and closing below 50% of green.'},
+  {type:'bear',name:'Bearish Engulfing',desc:'Red candle\'s body completely engulfs previous green body. Decisive seller takeover.'},
+  {type:'bear',name:'Three Black Crows',desc:'Three consecutive long red candles, each closing progressively lower. Strong reversal.'},
+  {type:'bear',name:'Evening Star',desc:'Three candles: long green → small star (gap up) → long red. Top reversal.'},
+  {type:'bear',name:'Shooting Star',desc:'Long upper shadow at top of uptrend. Failed rally — bearish warning.'},
+  {type:'bear',name:'Hanging Man',desc:'Hammer shape appearing at top of uptrend. Warning of possible reversal.'},
+  {type:'neutral',name:'Doji',desc:'Open ≈ Close. Cross shape. Neither buyers nor sellers in control — indecision.'},
+  {type:'neutral',name:'Spinning Top',desc:'Small body, long equal shadows both sides. Balanced indecision. Trend may pause.'},
+  {type:'neutral',name:'Harami',desc:'Small candle inside prior large candle body. Momentum slowing — watch for reversal.'},
+  {type:'neutral',name:'High Wave',desc:'Very small body, extremely long shadows both sides. Extreme indecision and volatility.'},
+];
+
+const cpData = [
+  {name:'Inv. Head & Shoulder',type:'bull',scenario:'Two shoulders + head at bottom of downtrend',t1:'Neckline breakout — depth from BO point',t2:'—',t3:'—'},
+  {name:'Double Bottom',type:'bull',scenario:'W-shape forming at trend bottom',t1:'Half depth (D/2)',t2:'Complete depth',t3:'2× Depth'},
+  {name:'Cup & Handle',type:'bull',scenario:'U-shape + handle, forms over 2-3+ years',t1:'Complete depth',t2:'2× Depth',t3:'3× Depth + next 7D'},
+  {name:'Head & Shoulder',type:'bear',scenario:'Two shoulders + head at top of uptrend',t1:'Neckline breakdown — depth from BD point',t2:'—',t3:'—'},
+  {name:'Double Top',type:'bear',scenario:'M-shape forming at trend top',t1:'Half depth (D/2)',t2:'Complete depth',t3:'2× Depth'},
+  {name:'Bullish Flag & Pole',type:'cont',scenario:'Uptrend → sideways consolidation → breakout up',t1:'Flag depth from BO',t2:'Pole height from flag bottom',t3:'Pole height from BO top'},
+  {name:'Bearish Flag & Pole',type:'cont',scenario:'Downtrend → sideways consolidation → breakdown',t1:'Flag depth from BD',t2:'Pole height from flag top',t3:'Pole height from BD bottom'},
+];
+
+const indicData = [
+  {name:'Volume',type:'Intensity Indicator',use:'Always — every trade',bull:'Above average line = buyers active and committed',bear:'Above average = sellers active and committed'},
+  {name:'MACD',type:'Trend Indicator (Lagging)',use:'Double screen system / Divergence signals',bull:'Higher TF MACD up; ideally above zero line. MACD Super TIDE also up.',bear:'Higher TF MACD down; ideally below zero line. MACD Super TIDE also down.'},
+  {name:'EMA',type:'Mood Indicator',use:'PCO (bullish) / NCO (bearish) alignment check',bull:'5 > 13 > 26 > 50 (PCO). Ignore stars/double tops/bottoms if EMA not aligned.',bear:'5 < 13 < 26 < 50 (NCO). Price must be below 50 EMA.'},
+  {name:'RSI',type:'Strength Indicator',use:'Swing/Momentum trades or Divergence',bull:'Must be above 50, ideally above 60 for swing trades.',bear:'Must be below 50, ideally below 40 for swing shorts.'},
+  {name:'Bollinger Bands',type:'Volatility Indicator',use:'BB Squeeze identification + trend confirmation',bull:'BBC up, or price in upper half of band (TIDE). BBC up on WAVE.',bear:'BBC down, or price in lower half of band (TIDE). BBC down on WAVE.'},
+  {name:'ADX + DI',type:'Momentum Indicator',use:'Trend strength filter — sideways vs trending',bull:'ADX rising from 12-15+. +DI always > -DI.',bear:'ADX rising from 12-15+. -DI always > +DI. ADX < 20 = sideways.'},
+];
+
+const stratData = [
+  {view:'bull',label:'Strong Bullish',badge:'bull-badge',
+   signals:'Flag BO, Inv H&S, Double Bottom, TL Breakout, Cup & Handle BO, MACD up on 2 higher TFs, Gap up Major Resistance, BBC up (Momentum), OI Call Short Covering, OI Put Short Buildup',
+   strategies:[
+    {name:'Future Naked Buy',detail:'Buy future on retracement or dip in uptrend'},
+    {name:'Naked Call Buy',detail:'Buy ATM call — Delta ~0.5'},
+    {name:'Call Ratio Spread',detail:'Buy 2 ATM calls + Sell 1 OTM call — Delta ~0.25'},
+    {name:'Bull Call Spread',detail:'Buy ATM call + Sell OTM call — Delta ~0.25'},
+  ]},
+  {view:'mbull',label:'Moderate Bullish',badge:'bull-badge',
+   signals:'Double Bottom + Bullish Engulf, Morning Star, Bullish Divergence, BKP, OI Call Long Buildup, OI Put Long Covering',
+   strategies:[
+    {name:'Put Bull Spread',detail:'Sell ATM put + Buy OTM put — Delta ~0.5'},
+  ]},
+  {view:'bear',label:'Strong Bearish',badge:'bear-badge',
+   signals:'Flag BD, H&S, Double Top, TL Breakdown, MACD down on 2 higher TFs, Gap down Major Support, BBC down (Momentum), OI Call Short Buildup, OI Put Short Covering',
+   strategies:[
+    {name:'Sell Future',detail:'Sell future on retracement or rally in downtrend'},
+    {name:'Naked Put Buy',detail:'Buy ATM put — Delta ~1'},
+    {name:'Put Ratio Spread',detail:'Buy 2 ATM puts + Sell 1 OTM put — Delta ~0.5'},
+    {name:'Bear Put Spread',detail:'Buy ATM put + Sell OTM put — Delta ~0.5'},
+  ]},
+  {view:'mbear',label:'Moderate Bearish',badge:'bear-badge',
+   signals:'Double Top + Bearish Engulf, Evening Star, High Wick candle, Bearish Divergence, BKT, OI Call Long Covering, OI Put Long Buildup',
+   strategies:[
+    {name:'Bear Call Spread',detail:'Sell ATM call + Buy OTM call — Delta ~0.5'},
+  ]},
+  {view:'side',label:'Sideways / Range',badge:'side-badge',
+   signals:'Price between TL range, BB flat, ADX < 20 (no momentum), Weekly/Monthly RSI 40-60, Weekly BB not challenged, Weekly ADX down-tick',
+   strategies:[
+    {name:'Short Straddle',detail:'Sell ATM call + ATM put (same strike). Good profit / unlimited loss.'},
+    {name:'Short Strangle',detail:'Sell OTM call + OTM put (Delta < 0.25). Lower profit / unlimited loss.'},
+    {name:'Short Iron Butterfly',detail:'Sell ATM call & put + Buy OTM call & put (same strikes for sell, 0.5 delta buy). Capped risk.'},
+    {name:'Short Iron Condor',detail:'Sell 0.5 delta call & put + Buy 0.25 delta call & put. Lower profit, balanced loss.'},
+  ]},
+];
+
+const derivTerms = [
+  ['Long','Buying in Futures market. Profit when price rises.'],
+  ['Short','Selling in Futures market first, then buying. Profit when price falls.'],
+  ['Spot Price','Current market price. All F&O open positions settle at spot on expiry.'],
+  ['Futures Price','Price of futures contract. At premium = bullish. At discount = bearish.'],
+  ['Lot Size','Minimum contract quantity. E.g. Reliance F&O = 500 shares per lot.'],
+  ['OI — Open Interest','Total outstanding positions at any given time. Key sentiment indicator.'],
+  ['MTM — Mark-to-Market','Daily settlement of P&L based on futures closing price.'],
+  ['ATM — At The Money','Strike closest to spot price. Highest liquidity. Break-even point.'],
+  ['ITM — In The Money','Call: Spot > Strike. Put: Strike > Spot. Has intrinsic value.'],
+  ['OTM — Out of The Money','Only time value, no intrinsic value. Cheaper, higher leverage.'],
+  ['Intrinsic Value','Call: Spot − Strike. Put: Strike − Spot (minimum zero).'],
+  ['Time Value','Premium minus intrinsic value. Decays to zero at expiry (theta decay).'],
+  ['Implied Volatility','Market estimate of future volatility. High IV = expensive options.'],
+  ['Initial Margin','Deposit to broker to take F&O position (15-20% for futures).'],
+  ['Maintenance Margin','Minimum balance. If below this, you get a margin call.'],
+  ['Roll Over','Carrying futures position from expiring month to next month.'],
+  ['Cost of Carry','Futures premium over spot price.'],
+  ['Delta','Option price change per 1 point in underlying. ATM call ≈ 0.5.'],
+  ['TMG (Short Covering)','Calls: price up + OI down = short covering = bullish.'],
+  ['TMJ (Short Buildup)','Puts: price down + OI up = short buildup in puts = bullish.'],
+];
+
+const glossaryFull = [
+  ...derivTerms,
+  ['Hammer','Small body + long lower shadow (≥2× body). Bullish reversal at downtrend bottom.'],
+  ['Doji','Open = Close. Indecision candle. Reversal potential after strong trend.'],
+  ['Bollinger Bands','Volatility indicator. Bands expand in high volatility, contract in low (squeeze).'],
+  ['MACD','Moving Avg Convergence Divergence. Lagging trend indicator. Used in double-screen.'],
+  ['RSI','Relative Strength Index. Strength indicator. >50 bullish, <50 bearish.'],
+  ['ADX','Average Directional Index. Trend strength. >15 = trending, <20 = sideways.'],
+  ['+DI / -DI','Directional indicators. +DI > -DI = bullish. -DI > +DI = bearish.'],
+  ['PCO','Perfect Crossover — EMA 5 > 13 > 26 > 50. Bullish alignment.'],
+  ['NCO','Negative Crossover — EMA 5 < 13 < 26 < 50. Bearish alignment.'],
+  ['BEP','Break Even Point. Call: Strike + Premium. Put: Strike − Premium.'],
+  ['Strike Price','Pre-determined price at which option can be exercised.'],
+  ['Expiry','Last Thursday of month (monthly). Every Thursday (weekly Nifty/BankNifty).'],
+  ['SMM','Secret of Market Millionaires — the complete trading framework.'],
+  ['BBC','Bollinger Band Center — the midline of the Bollinger Band.'],
+  ['TIDE','Higher timeframe for trend confirmation. WAVE = lower TF for entry.'],
+  ['Gap Up','Price opens significantly above previous close — strong bullish signal at resistance.'],
+  ['Gap Down','Price opens significantly below previous close — strong bearish signal at support.'],
+];
+
+const quizQs = [
+  {q:'What does a Hammer candlestick signal when appearing at the bottom of a downtrend?',opts:['Bearish continuation','Bullish reversal','Market indecision','Strong downtrend'],ans:1,exp:'Hammer is a bullish reversal pattern. Its long lower shadow shows sellers pushed prices down, but buyers stepped in and drove price back up — exhausting bearish momentum.'},
+  {q:'In a Bullish Engulfing pattern, what must happen?',opts:['Small green candle followed by small red candle','Large green candle completely covers the previous red candle body','Two equal-sized green candles','A gap up opening only'],ans:1,exp:'Bullish Engulfing requires the second (green) candle\'s real body to completely engulf the first (red) candle\'s body — showing a decisive shift from sellers to buyers.'},
+  {q:'What does Open Interest (OI) increasing in Calls with rising Call price indicate?',opts:['Short Covering','Long Buildup in Calls (bullish)','Short Buildup in Puts','Long Covering'],ans:1,exp:'Call price UP + OI UP = new long positions being built = Long Buildup. This is a bullish signal showing fresh buying interest in calls.'},
+  {q:'Which EMA alignment confirms a bullish PCO (Perfect Crossover)?',opts:['5 < 13 < 26 < 50','50 > 5 > 26 > 13','5 > 13 > 26 > 50','13 > 5 > 26 > 50'],ans:2,exp:'PCO = EMA 5 > 13 > 26 > 50. Short-term EMAs are above long-term ones. This confirms bullish momentum is aligned across all timeframes.'},
+  {q:'For a Call option, what is the Break Even Point (BEP)?',opts:['Strike Price − Premium','Strike Price + Premium','Spot Price + Premium','Spot Price − Strike Price'],ans:1,exp:'Call BEP = Strike Price + Premium paid. The underlying must rise above this level for the call buyer to make a net profit at expiry.'},
+  {q:'Which indicator is described as the "Strength Indicator" in the SMM framework?',opts:['MACD','EMA','RSI','Volume'],ans:2,exp:'RSI (Relative Strength Index) is the Strength Indicator. Above 50 = bullish strength. For swings, ideally above 60 for longs and below 40 for shorts.'},
+  {q:'What does a Double Top chart pattern signal?',opts:['Bullish continuation','Bullish reversal from downtrend','Bearish reversal from uptrend','Sideways range continuation'],ans:2,exp:'Double Top is a bearish reversal pattern forming at the top of an uptrend — two peaks at similar resistance. It signals buying momentum is exhausted and sellers are taking control.'},
+  {q:'What ADX condition confirms a sideways market suitable for Short Straddle/Strangle?',opts:['ADX > 30','RSI below 30','ADX below 20, RSI between 40-60','MACD above zero line'],ans:2,exp:'Sideways: ADX < 20 (no trend), RSI oscillating 40-60 (no momentum), Bollinger Bands flat. Short Straddle/Strangle profit from time decay in range-bound markets.'},
+  {q:'What happens to Time Value of an option at expiry?',opts:['It doubles','It equals intrinsic value','It becomes zero','It equals the total premium'],ans:2,exp:'Time Value decays to exactly zero at expiry (theta decay). Only intrinsic value (if any) remains. This is why option sellers benefit from time passing.'},
+  {q:'A Morning Star pattern consists of how many candles?',opts:['One','Two','Three','Four'],ans:2,exp:'Morning Star = 3 candles: (1) Long bearish candle, (2) Small-bodied star candle gapping lower, (3) Long bullish candle closing well into the first candle\'s body.'},
+];
+
+/* ─── BUILD CANDLES ─── */
+function buildCandles(filter) {
+  const g = document.getElementById('candle-grid'); g.innerHTML = '';
+  candleData.filter(c => filter === 'all' || c.type === filter).forEach(c => {
+    const cls = c.type === 'bull' ? 'bull' : c.type === 'bear' ? 'bear' : '';
+    const lc = c.type === 'bull' ? '#4db87a' : c.type === 'bear' ? '#e07070' : '#c9a84c';
+    const lbl = c.type === 'bull' ? 'Bullish' : c.type === 'bear' ? 'Bearish' : 'Neutral';
+    const div = document.createElement('div');
+    div.className = 'card ' + cls;
+    div.innerHTML = `<div class="card-label" style="color:${lc}">${lbl}</div><div class="card-name">${c.name}</div><div class="card-desc">${c.desc}</div>`;
+    g.appendChild(div);
+  });
+}
+
+function filterCandles(f, btn) {
+  document.querySelectorAll('#panel-candles .btn-filter').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  buildCandles(f);
+}
+
+/* ─── BUILD CHARTS ─── */
+function buildCharts() {
+  const b = document.getElementById('cp-body'); b.innerHTML = '';
+  cpData.forEach(r => {
+    const tc = r.type === 'bull' ? 'badge-bull' : r.type === 'bear' ? 'badge-bear' : 'badge-cont';
+    const tl = r.type === 'bull' ? 'Bullish' : r.type === 'bear' ? 'Bearish' : 'Continuation';
+    b.innerHTML += `<tr><td><strong>${r.name}</strong></td><td><span class="badge ${tc}">${tl}</span></td><td>${r.scenario}</td><td>${r.t1}</td><td>${r.t2}</td><td>${r.t3}</td></tr>`;
+  });
+}
+
+/* ─── BUILD INDICATORS ─── */
+function buildIndicators() {
+  const g = document.getElementById('ind-grid'); g.innerHTML = '';
+  indicData.forEach(i => {
+    g.innerHTML += `<div class="ind-card"><div class="ind-name">${i.name}</div><div class="ind-type">${i.type}</div><div class="ind-use">Use: ${i.use}</div><div class="ind-bull"><span class="dot bull-dot"></span>${i.bull}</div><div class="ind-bear"><span class="dot bear-dot"></span>${i.bear}</div></div>`;
+  });
+}
+
+/* ─── BUILD DERIV TERMS ─── */
+function buildDerivTerms() {
+  const el = document.getElementById('deriv-terms'); el.innerHTML = '';
+  derivTerms.forEach(([k, v]) => {
+    el.innerHTML += `<div class="term"><div class="term-key">${k}</div><div class="term-val">${v}</div></div>`;
+  });
+}
+
+/* ─── BUILD STRATEGY ─── */
+function buildStrategy(filter) {
+  const el = document.getElementById('strat-container'); el.innerHTML = '';
+  stratData.filter(s => filter === 'all' || s.view === filter).forEach(s => {
+    const items = s.strategies.map(st => `<div class="strat-item"><strong>${st.name}:</strong> ${st.detail}</div>`).join('');
+    el.innerHTML += `<div class="strat-card"><div class="strat-header"><span class="strat-badge ${s.badge}">${s.label}</span></div><div class="strat-signals"><strong style="color:var(--gold);font-size:10px;letter-spacing:1px;text-transform:uppercase">Signals: </strong>${s.signals}</div>${items}</div>`;
+  });
+}
+
+function filterStrat(f, btn) {
+  document.querySelectorAll('#panel-strategy .btn-filter').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  buildStrategy(f);
+}
+
+/* ─── BUILD GLOSSARY ─── */
+function buildGlossary() {
+  const el = document.getElementById('glossary-list'); el.innerHTML = '';
+  glossaryFull.forEach(([k, v]) => {
+    el.innerHTML += `<div class="term" data-key="${k.toLowerCase()}" data-val="${v.toLowerCase()}"><div class="term-key">${k}</div><div class="term-val">${v}</div></div>`;
+  });
+}
+function filterGlossary() {
+  const q = document.getElementById('gloss-search').value.toLowerCase();
+  document.querySelectorAll('#glossary-list .term').forEach(t => {
+    t.style.display = (!q || t.dataset.key.includes(q) || t.dataset.val.includes(q)) ? 'grid' : 'none';
+  });
+}
+
+/* ─── QUIZ ─── */
+let qIdx = 0, score = 0, answered = false;
+function startQuiz() {
+  qIdx = 0; score = 0; answered = false;
+  document.getElementById('quiz-restart').style.display = 'none';
+  document.getElementById('quiz-result-msg').textContent = '';
+  loadQ();
+}
+function loadQ() {
+  if (qIdx >= quizQs.length) {
+    const pct = Math.round(score / quizQs.length * 100);
+    document.getElementById('quiz-q').textContent = 'Quiz Complete!';
+    document.getElementById('quiz-opts').innerHTML = `<div style="text-align:center;padding:24px"><div style="font-size:48px;font-family:Cinzel,serif;color:var(--gold2)">${score}/${quizQs.length}</div><div style="font-size:14px;color:var(--textmuted);margin-top:8px">${pct}% — ${pct>=80?'Excellent! You are ready to trade.':pct>=60?'Good! Review weak areas.':'Keep studying the modules.'}</div></div>`;
+    document.getElementById('quiz-fb').className = 'quiz-feedback';
+    document.getElementById('quiz-next').style.display = 'none';
+    document.getElementById('quiz-restart').style.display = 'inline-block';
+    document.getElementById('quiz-score').textContent = '';
+    buildProgress();
+    return;
+  }
+  answered = false;
+  const q = quizQs[qIdx];
+  document.getElementById('quiz-score').textContent = `Question ${qIdx + 1} of ${quizQs.length} — Score: ${score}`;
+  document.getElementById('quiz-q').textContent = q.q;
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-next').style.display = 'none';
+  buildProgress();
+  const el = document.getElementById('quiz-opts'); el.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt'; btn.textContent = o;
+    btn.onclick = () => answerQ(i, q.ans, q.exp);
+    el.appendChild(btn);
+  });
+}
+function buildProgress() {
+  const el = document.getElementById('quiz-progress'); el.innerHTML = '';
+  for (let i = 0; i < quizQs.length; i++) {
+    const cls = i < qIdx ? 'done' : i === qIdx ? 'current' : '';
+    el.innerHTML += `<div class="quiz-dot ${cls}"></div>`;
+  }
+}
+function answerQ(chosen, correct, exp) {
+  if (answered) return;
+  answered = true;
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(b => b.disabled = true);
+  opts[correct].classList.add('correct');
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === correct) {
+    score++;
+    fb.textContent = '✓ Correct! ' + exp;
+    fb.style.cssText = 'background:#1a6b3a15;color:#4db87a;border:0.5px solid #4db87a33;';
+  } else {
+    opts[chosen].classList.add('wrong');
+    fb.textContent = '✗ Incorrect. ' + exp;
+    fb.style.cssText = 'background:#8b1a1a15;color:#e07070;border:0.5px solid #e0707033;';
+  }
+  fb.classList.add('show');
+  document.getElementById('quiz-next').style.display = 'inline-block';
+}
+function nextQ() { qIdx++; loadQ(); }
+
+/* ─── AI SIDEBAR ─── */
+function toggleSidebar() {
+  const s = document.getElementById('ai-sidebar');
+  const f = document.getElementById('ai-float-btn');
+  s.classList.toggle('collapsed');
+  f.style.display = s.classList.contains('collapsed') ? 'flex' : 'none';
+}
+
+function saveKey() {
+  const k = document.getElementById('api-key').value;
+  localStorage.setItem('ar_apikey', k);
+}
+
+function aiKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAI(); }
+}
+
+function askQuick(q) {
+  document.getElementById('ai-input').value = q;
+  sendAI();
+}
+
+async function sendAI() {
+  const input = document.getElementById('ai-input');
+  const apiKey = document.getElementById('api-key').value.trim();
+  const msg = input.value.trim();
+  if (!msg) return;
+  if (!apiKey) {
+    appendMsg('assistant', '⚠ Please enter your Anthropic API key above to use the AI Tutor. Get yours at console.anthropic.com');
+    return;
+  }
+  appendMsg('user', msg);
+  input.value = '';
+  const thinking = appendMsg('assistant', 'Thinking...', 'thinking');
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        system: `You are an expert trading tutor for AR Trading Academy, specializing in the SMM (Secret of Market Millionaires) framework for Indian stock markets. You teach candlestick patterns, chart patterns (H&S, Double Top/Bottom, Cup & Handle, Flags), technical indicators (MACD, RSI, EMA, Bollinger Bands, Volume, ADX), Futures & Options (F&O), and trading strategy (bullish, bearish, sideways). Keep answers concise, practical, and specific to Indian markets (NSE/BSE, Nifty, BankNifty). Use ₹ for examples. Be encouraging and educational.`,
+        messages: [{ role: 'user', content: msg }]
+      })
+    });
+    const data = await res.json();
+    thinking.remove();
+    if (data.content && data.content[0]) {
+      appendMsg('assistant', data.content[0].text);
+    } else if (data.error) {
+      appendMsg('assistant', '⚠ API Error: ' + data.error.message);
+    }
+  } catch (err) {
+    thinking.remove();
+    appendMsg('assistant', '⚠ Connection error. Check your API key and internet connection.');
+  }
+}
+
+function appendMsg(role, text, extra) {
+  const msgs = document.getElementById('ai-msgs');
+  const div = document.createElement('div');
+  div.className = 'ai-msg ' + role + (extra ? ' ' + extra : '');
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+/* ─── INIT ─── */
+buildCandles('all');
+buildCharts();
+buildIndicators();
+buildDerivTerms();
+buildStrategy('all');
+buildGlossary();
+startQuiz();
+</script>
+</body>
+</html>
